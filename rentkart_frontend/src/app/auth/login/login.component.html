@@ -1,0 +1,43 @@
+<div class="container mt-5" style="max-width: 400px;">
+  <h3 class="text-center mb-4">Rentkart Admin Login</h3>
+
+  <!-- Phone Number -->
+  <div class="mb-3">
+    <label class="form-label">Phone Number</label>
+    <input
+      type="text"
+      class="form-control"
+      [(ngModel)]="phone"
+      placeholder="Enter admin phone number"
+    />
+  </div>
+
+  <button
+    class="btn btn-primary w-100 mb-3"
+    (click)="sendOtp()"
+    [disabled]="!phone"
+  >
+    Send OTP
+  </button>
+
+  <!-- OTP -->
+  <div *ngIf="otpSent">
+    <div class="mb-3">
+      <label class="form-label">OTP</label>
+      <input
+        type="text"
+        class="form-control"
+        [(ngModel)]="otp"
+        placeholder="Enter OTP"
+      />
+    </div>
+
+    <button
+      class="btn btn-success w-100"
+      (click)="verifyOtp()"
+      [disabled]="!otp"
+    >
+      Verify OTP
+    </button>
+  </div>
+</div>

@@ -1,4 +1,5 @@
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.parsers import MultiPartParser, FormParser
 from .models import Category, Product
 from .serializers import CategorySerializer, ProductSerializer
 from permissions import IsAdminUserOnly
@@ -14,10 +15,11 @@ class ProductAdminViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [IsAdminUserOnly]
+    parser_classes = [MultiPartParser, FormParser]
 
 
 class ProductPublicViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [AllowAny]
-    http_method_names = ['get']
+    permission_classes = [AllowAny] #
+    http_method_names = ['get'] #

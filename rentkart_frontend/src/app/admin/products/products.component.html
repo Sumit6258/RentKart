@@ -1,0 +1,99 @@
+<div class="container mt-4">
+  <h3>Manage Products</h3>
+
+  <form (submit)="addProduct(); $event.preventDefault()">
+
+    <input
+      class="form-control mb-2"
+      placeholder="Product name"
+      [(ngModel)]="product.name"
+      name="name"
+    />
+
+    <select
+      class="form-control mb-2"
+      [(ngModel)]="product.category"
+      name="category"
+    >
+      <option value="">Select Category</option>
+      <option *ngFor="let c of categories" [value]="c.id">
+        {{ c.name }}
+      </option>
+    </select>
+
+    <input
+      class="form-control mb-2"
+      type="number"
+      placeholder="Price"
+      [(ngModel)]="product.price"
+      name="price"
+    />
+
+    <select
+      class="form-control mb-2"
+      [(ngModel)]="product.subscription_type"
+      name="subscription_type"
+    >
+      <option value="">Subscription Type</option>
+      <option value="weekly">Weekly</option>
+      <option value="monthly">Monthly</option>
+      <option value="quarterly">Quarterly</option>
+    </select>
+
+    <input
+  type="file"
+  class="form-control mb-2"
+  (change)="onFile1Change($event)"
+/>
+
+<input
+  type="file"
+  class="form-control mb-2"
+  (change)="onFile2Change($event)"
+/>
+
+
+    <button class="btn btn-success">Add Product</button>
+  </form>
+
+  <hr />
+
+  <ul class="list-group">
+  <li
+    class="list-group-item"
+    *ngFor="let p of products"
+  >
+    <div class="row align-items-center">
+
+      <div class="col-md-2">
+        <img
+          *ngIf="p.image1"
+          [src]="p.image1"
+          class="img-fluid rounded"
+          style="max-height: 80px"
+        />
+      </div>
+
+      <div class="col-md-7">
+        <h6>{{ p.name }}</h6>
+        <small>
+          Category: {{ p.category_name || p.category }} <br />
+          Price: ₹{{ p.price }} <br />
+          Subscription: {{ p.subscription_type }}
+        </small>
+      </div>
+
+      <div class="col-md-3 text-end">
+        <button
+          class="btn btn-sm btn-danger"
+          (click)="deleteProduct(p.id)"
+        >
+          Delete
+        </button>
+      </div>
+
+    </div>
+  </li>
+</ul>
+
+</div>

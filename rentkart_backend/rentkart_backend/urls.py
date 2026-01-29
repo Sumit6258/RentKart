@@ -42,6 +42,13 @@ router.register(
     basename='admin-subscriptions'
 )
 
+router.register(
+    r'subscriptions',
+    SubscriptionViewSet,
+    basename='subscriptions'
+)
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),

@@ -28,42 +28,60 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ProductListSerializer(serializers.ModelSerializer):
-    """Serializer for product list (lighter)"""
+    """Lightweight serializer for product listing"""
     category_name = serializers.CharField(source='category.name', read_only=True)
+    category_slug = serializers.CharField(source='category.slug', read_only=True)
     vendor_name = serializers.CharField(source='vendor.get_full_name', read_only=True)
     
     class Meta:
         model = Product
         fields = [
-            'id', 'name', 'slug', 'category', 'category_name',
+            'id', 'name', 'slug', 
+            'category', 'category_name', 'category_slug',
             'daily_price', 'weekly_price', 'monthly_price',
-            'main_image', 'vendor_name', 'city', 'is_available',
-            'is_featured'
+            'main_image', 'vendor_name', 'city', 
+            'is_available', 'is_featured', 'created_at'
         ]
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
-    """Serializer for product detail (full info)"""
-    category = CategorySerializer(read_only=True)
-    category_id = serializers.UUIDField(write_only=True)
+    """Complete serializer for product detail page"""
+    category_name = serializers.CharField(source='category.name', read_only=True)
+    category_slug = serializers.CharField(source='category.slug', read_only=True)
+    category_id = serializers.CharField(source='category.id', read_only=True)
+    
     vendor_name = serializers.CharField(source='vendor.get_full_name', read_only=True)
+    vendor_email = serializers.EmailField(source='vendor.email', read_only=True)
+    vendor_id = serializers.CharField(source='vendor.id', read_only=True)
     
     class Meta:
         model = Product
         fields = [
+            # Basic Info
             'id', 'name', 'slug', 'description',
-            'category', 'category_id',
+            
+            # Category
+            'category', 'category_id', 'category_name', 'category_slug',
+            
+            # Pricing
             'daily_price', 'weekly_price', 'monthly_price', 'security_deposit',
-            'vendor', 'vendor_name',
+            
+            # Vendor
+            'vendor', 'vendor_id', 'vendor_name', 'vendor_email',
+            
+            # Inventory
             'quantity', 'available_quantity',
+            
+            # Images & Location
             'main_image', 'city', 'state',
+            
+            # Status
             'is_active', 'is_featured', 'is_available',
+            
+            # Stats
             'view_count', 'rental_count',
+            
+            # Timestamps
             'created_at', 'updated_at'
         ]
         read_only_fields = ['vendor', 'view_count', 'rental_count', 'created_at', 'updated_at']
-    
-    def create(self, validated_data):
-        # Set vendor to current user
-        validated_data['vendor'] = self.context['request'].user
-        return super().create(validated_data)

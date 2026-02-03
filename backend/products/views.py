@@ -1,12 +1,12 @@
 from rest_framework import generics, filters
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Category, Product
 from .serializers import CategorySerializer, ProductListSerializer, ProductDetailSerializer
 
 
 class CategoryListView(generics.ListCreateAPIView):
-    """List all categories or create new (vendors only)"""
     queryset = Category.objects.filter(is_active=True)
     serializer_class = CategorySerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -17,7 +17,6 @@ class CategoryListView(generics.ListCreateAPIView):
 
 
 class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
-    """Get, update, or delete a category"""
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -25,7 +24,6 @@ class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class ProductListView(generics.ListCreateAPIView):
-    """List all products or create new (vendors only)"""
     queryset = Product.objects.filter(is_active=True)
     permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
@@ -41,7 +39,6 @@ class ProductListView(generics.ListCreateAPIView):
 
 
 class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
-    """Get, update, or delete a product"""
     queryset = Product.objects.all()
     serializer_class = ProductDetailSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -57,7 +54,6 @@ class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class ProductsByCategoryView(generics.ListAPIView):
-    """Get all products in a specific category"""
     serializer_class = ProductListSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
     

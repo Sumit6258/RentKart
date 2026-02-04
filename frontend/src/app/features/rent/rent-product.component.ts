@@ -1,6 +1,8 @@
+
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ProductService } from '../../core/services/product.service';
 import { HttpClient } from '@angular/common/http';
@@ -10,7 +12,40 @@ import { ToastService } from '../../core/services/toast.service';
 @Component({
   selector: 'app-rent-product',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule],
+  styles: [`
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
+    
+    .animate-pulse {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    .animate-slide-in {
+      animation: slideIn 0.3s ease-out;
+    }
+  `],
   template: `
     <div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-12">
       <div class="container mx-auto px-4 max-w-5xl">
@@ -161,14 +196,14 @@ import { ToastService } from '../../core/services/toast.service';
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
-                    Confirm Rental & Proceed
+                    Proceed to Payment
                   </span>
                   <span *ngIf="loading" class="flex items-center justify-center gap-3">
                     <svg class="animate-spin h-6 w-6" viewBox="0 0 24 24">
                       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
                       <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Processing Your Rental...
+                    Processing...
                   </span>
                 </button>
 
@@ -258,6 +293,105 @@ import { ToastService } from '../../core/services/toast.service';
         </div>
       </div>
     </div>
+
+    <!-- Payment Modal -->
+    <div *ngIf="showPaymentModal" 
+         class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+         (click)="showPaymentModal = false">
+      <div (click)="$event.stopPropagation()" 
+           class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-slide-in">
+        
+        <!-- Processing State -->
+        <div *ngIf="processingPayment" class="p-12 text-center">
+          <div class="w-24 h-24 mx-auto mb-6 relative">
+            <div class="absolute inset-0 border-8 border-blue-200 rounded-full"></div>
+            <div class="absolute inset-0 border-8 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+          </div>
+          <h3 class="text-2xl font-bold mb-2 animate-pulse">Processing Payment...</h3>
+          <p class="text-gray-600">Please wait while we process your transaction</p>
+        </div>
+
+        <!-- Payment Selection -->
+        <div *ngIf="!processingPayment && !paymentSuccess && !paymentFailed">
+          <!-- Header -->
+          <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white">
+            <h3 class="text-2xl font-bold mb-2">Complete Payment</h3>
+            <p class="text-blue-100">Total Amount: ₹{{ getTotalAmount() }}</p>
+          </div>
+
+          <!-- Payment Methods -->
+          <div class="p-6">
+            <h4 class="font-bold mb-4">Select Payment Method</h4>
+            <div class="space-y-3">
+              <label *ngFor="let method of paymentMethods" 
+                     class="flex items-center gap-4 p-4 border-2 rounded-xl cursor-pointer transition hover:border-blue-500"
+                     [class.border-blue-600]="selectedPaymentMethod === method.value"
+                     [class.bg-blue-50]="selectedPaymentMethod === method.value">
+                <input type="radio" 
+                       [(ngModel)]="selectedPaymentMethod" 
+                       [value]="method.value"
+                       name="paymentMethod"
+                       class="w-5 h-5 text-blue-600">
+                <div class="text-3xl">{{ method.icon }}</div>
+                <div class="flex-1">
+                  <p class="font-bold">{{ method.label }}</p>
+                  <p class="text-sm text-gray-600">{{ method.description }}</p>
+                </div>
+              </label>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-3 mt-6">
+              <button (click)="processPayment()" 
+                      [disabled]="!selectedPaymentMethod"
+                      class="flex-1 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-xl hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 shadow-lg transition">
+                Pay ₹{{ getTotalAmount() }}
+              </button>
+              <button (click)="showPaymentModal = false"
+                      class="px-6 py-4 bg-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-300 transition">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Success State -->
+        <div *ngIf="paymentSuccess" class="p-12 text-center">
+          <div class="w-24 h-24 bg-green-100 rounded-full mx-auto mb-6 flex items-center justify-center">
+            <svg class="w-16 h-16 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <h3 class="text-3xl font-bold text-green-600 mb-2">Payment Successful!</h3>
+          <p class="text-gray-600 mb-6">Your rental has been confirmed</p>
+          <button (click)="goToDashboard()"
+                  class="px-8 py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 shadow-lg">
+            View My Rentals
+          </button>
+        </div>
+
+        <!-- Failed State -->
+        <div *ngIf="paymentFailed" class="p-12 text-center">
+          <div class="w-24 h-24 bg-red-100 rounded-full mx-auto mb-6 flex items-center justify-center">
+            <svg class="w-16 h-16 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </div>
+          <h3 class="text-3xl font-bold text-red-600 mb-2">Payment Failed</h3>
+          <p class="text-gray-600 mb-6">{{ paymentError }}</p>
+          <div class="flex gap-3 justify-center">
+            <button (click)="retryPayment()"
+                    class="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg">
+              Try Again
+            </button>
+            <button (click)="showPaymentModal = false"
+                    class="px-8 py-3 bg-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-300">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   `
 })
 export class RentProductComponent implements OnInit {
@@ -266,28 +400,26 @@ export class RentProductComponent implements OnInit {
   loading = false;
   minDate = '';
 
+  // Payment related
+  showPaymentModal = false;
+  selectedPaymentMethod = '';
+  processingPayment = false;
+  paymentSuccess = false;
+  paymentFailed = false;
+  paymentError = '';
+  createdSubscriptionId: string | null = null;
+
+  paymentMethods = [
+    { value: 'upi', label: 'UPI', icon: '📱', description: 'Google Pay, PhonePe, Paytm' },
+    { value: 'card', label: 'Credit/Debit Card', icon: '💳', description: 'Visa, Mastercard, RuPay' },
+    { value: 'netbanking', label: 'Net Banking', icon: '🏦', description: 'All major banks' },
+    { value: 'wallet', label: 'Digital Wallet', icon: '👛', description: 'Paytm, Amazon Pay' }
+  ];
+
   durationTypes = [
-    { 
-      value: 'daily', 
-      label: 'Daily', 
-      description: '1 Day',
-      icon: '📅',
-      savings: null
-    },
-    { 
-      value: 'weekly', 
-      label: 'Weekly', 
-      description: '7 Days',
-      icon: '📆',
-      savings: '10%'
-    },
-    { 
-      value: 'monthly', 
-      label: 'Monthly', 
-      description: '30 Days',
-      icon: '🗓️',
-      savings: '20%'
-    }
+    { value: 'daily', label: 'Daily', description: '1 Day', icon: '📅', savings: null },
+    { value: 'weekly', label: 'Weekly', description: '7 Days', icon: '📆', savings: '10%' },
+    { value: 'monthly', label: 'Monthly', description: '30 Days', icon: '🗓️', savings: '20%' }
   ];
 
   constructor(
@@ -312,9 +444,6 @@ export class RentProductComponent implements OnInit {
     const slug = this.route.snapshot.paramMap.get('slug');
     if (slug) {
       this.loadProduct(slug);
-    } else {
-      this.toastService.error('Invalid product');
-      this.router.navigate(['/products']);
     }
   }
 
@@ -323,7 +452,7 @@ export class RentProductComponent implements OnInit {
       next: (product) => {
         this.product = product;
       },
-      error: (err) => {
+      error: () => {
         this.toastService.error('Product not found');
         this.router.navigate(['/products']);
       }
@@ -332,16 +461,11 @@ export class RentProductComponent implements OnInit {
 
   getPrice(durationType: string): number {
     if (!this.product) return 0;
-    
     switch (durationType) {
-      case 'daily':
-        return this.product.daily_price;
-      case 'weekly':
-        return this.product.weekly_price || Math.round(this.product.daily_price * 7 * 0.9);
-      case 'monthly':
-        return this.product.monthly_price || Math.round(this.product.daily_price * 30 * 0.8);
-      default:
-        return this.product.daily_price;
+      case 'daily': return this.product.daily_price;
+      case 'weekly': return this.product.weekly_price || Math.round(this.product.daily_price * 7 * 0.9);
+      case 'monthly': return this.product.monthly_price || Math.round(this.product.daily_price * 30 * 0.8);
+      default: return this.product.daily_price;
     }
   }
 
@@ -360,11 +484,7 @@ export class RentProductComponent implements OnInit {
   getEndDate(): Date {
     const startDate = new Date(this.rentalForm.get('start_date')?.value);
     const durationType = this.rentalForm.get('duration_type')?.value;
-    
-    let daysToAdd = 1;
-    if (durationType === 'weekly') daysToAdd = 7;
-    if (durationType === 'monthly') daysToAdd = 30;
-    
+    let daysToAdd = durationType === 'weekly' ? 7 : durationType === 'monthly' ? 30 : 1;
     const endDate = new Date(startDate);
     endDate.setDate(endDate.getDate() + daysToAdd);
     return endDate;
@@ -382,21 +502,57 @@ export class RentProductComponent implements OnInit {
 
       this.http.post(`${environment.apiUrl}/subscriptions/create/`, rentalData).subscribe({
         next: (response: any) => {
-          this.toastService.success('🎉 Rental created successfully!');
-          setTimeout(() => {
-            this.router.navigate(['/dashboard'], { queryParams: { tab: 'rentals' } });
-          }, 1000);
+          this.createdSubscriptionId = response.subscription.id;
+          this.loading = false;
+          this.showPaymentModal = true;
         },
         error: (err) => {
-          console.error('Rental creation error:', err);
-          if (err.error?.detail) {
-            this.toastService.error(err.error.detail);
-          } else {
-            this.toastService.error('Failed to create rental. Please try again.');
-          }
+          this.toastService.error('Failed to create rental');
           this.loading = false;
         }
       });
     }
+  }
+
+  processPayment() {
+    if (!this.selectedPaymentMethod || !this.createdSubscriptionId) return;
+
+    this.processingPayment = true;
+
+    const paymentData = {
+      subscription_id: this.createdSubscriptionId,
+      payment_method: this.selectedPaymentMethod
+    };
+
+    // Simulate processing delay
+    setTimeout(() => {
+      this.http.post(`${environment.apiUrl}/payments/process/`, paymentData).subscribe({
+        next: (response: any) => {
+          this.processingPayment = false;
+          if (response.success) {
+            this.paymentSuccess = true;
+            this.toastService.success('🎉 Payment successful!');
+          } else {
+            this.paymentFailed = true;
+            this.paymentError = response.message || 'Payment failed. Please try again.';
+          }
+        },
+        error: (err) => {
+          this.processingPayment = false;
+          this.paymentFailed = true;
+          this.paymentError = 'Payment processing failed. Please try again.';
+        }
+      });
+    }, 2000);
+  }
+
+  retryPayment() {
+    this.paymentFailed = false;
+    this.paymentError = '';
+    this.selectedPaymentMethod = '';
+  }
+
+  goToDashboard() {
+    this.router.navigate(['/dashboard'], { queryParams: { tab: 'rentals' } });
   }
 }

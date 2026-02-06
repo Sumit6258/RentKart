@@ -7,11 +7,12 @@ import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth.service';
 import { ProductService } from '../../core/services/product.service';
 import { ToastService } from '../../core/services/toast.service';
+import { InrCurrencyPipe } from '../../shared/pipes/currency.pipe';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, InrCurrencyPipe],
   styles: [`
     @keyframes slideIn {
       from {
@@ -123,6 +124,16 @@ import { ToastService } from '../../core/services/toast.service';
                         class="ml-auto px-2 py-1 bg-blue-600 text-white text-xs font-bold rounded-full">
                     {{ getActiveRentalsCount() }}
                   </span>
+                </button>
+                
+                <button (click)="activeTab = 'invoices'"
+                        [class.bg-blue-50]="activeTab === 'invoices'"
+                        [class.text-blue-600]="activeTab === 'invoices'"
+                        [class.border-l-4]="activeTab === 'invoices'"
+                        [class.border-blue-600]="activeTab === 'invoices'"
+                        class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 transition-all font-medium flex items-center gap-3 group">
+                  <span class="text-xl">📄</span>
+                  <span>Invoices</span>
                 </button>
                 
                 <button (click)="activeTab = 'profile'"
@@ -276,13 +287,11 @@ import { ToastService } from '../../core/services/toast.service';
                 <div *ngFor="let rental of getFilteredRentals()" 
                      class="rental-card border-2 border-gray-100 rounded-2xl p-6 hover:border-blue-200">
                   <div class="flex gap-6">
-                    <!-- Product Image -->
                     <img [src]="productService.getImageUrl(rental.product_details?.main_image)" 
                          [alt]="rental.product_details?.name"
                          class="w-32 h-32 object-cover rounded-xl flex-shrink-0 shadow-md border border-gray-200">
                     
                     <div class="flex-1 min-w-0">
-                      <!-- Product Name & Category -->
                       <div class="flex items-start justify-between mb-3">
                         <div>
                           <h3 class="font-bold text-xl text-gray-900 mb-2">{{ rental.product_details?.name }}</h3>
@@ -296,7 +305,6 @@ import { ToastService } from '../../core/services/toast.service';
                         </span>
                       </div>
                       
-                      <!-- Rental Details Grid -->
                       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                         <div class="bg-gray-50 rounded-lg p-3">
                           <p class="text-xs text-gray-500 mb-1 font-semibold uppercase">Start Date</p>
@@ -312,14 +320,12 @@ import { ToastService } from '../../core/services/toast.service';
                         </div>
                         <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-3 border border-blue-200">
                           <p class="text-xs text-blue-600 mb-1 font-semibold uppercase">Amount</p>
-                          <p class="font-bold text-2xl text-blue-600">₹{{ rental.total_amount }}</p>
+                          <p class="font-bold text-2xl text-blue-600">{{ rental.total_amount | inrCurrency }}</p>
                         </div>
                       </div>
 
-                      <!-- Progress Bar for Active Rentals -->
                       <div *ngIf="rental.is_active && rental.days_remaining >= 0">
                         <div class="bg-gradient-to-r from-gray-100 to-gray-50 rounded-xl p-4 border border-gray-200">
-                          <!-- Header -->
                           <div class="flex justify-between items-center mb-3">
                             <div class="flex items-center gap-2">
                               <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -333,14 +339,12 @@ import { ToastService } from '../../core/services/toast.service';
                             </div>
                           </div>
 
-                          <!-- Progress Bar -->
                           <div class="relative h-3 bg-white rounded-full overflow-hidden shadow-inner border border-gray-200">
                             <div class="progress-bar-fill absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-1000 ease-out"
                                  [style.width.%]="getRentalProgress(rental)">
                             </div>
                           </div>
 
-                          <!-- Timeline Markers -->
                           <div class="flex justify-between items-center mt-3 text-xs">
                             <div class="flex items-center gap-2 text-gray-600">
                               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -362,7 +366,6 @@ import { ToastService } from '../../core/services/toast.service';
                 </div>
               </div>
 
-              <!-- Empty State -->
               <div *ngIf="!loadingRentals && getFilteredRentals().length === 0" 
                    class="text-center py-20">
                 <div class="text-9xl mb-6">🛍️</div>
@@ -375,10 +378,72 @@ import { ToastService } from '../../core/services/toast.service';
               </div>
             </div>
 
+            <!-- INVOICES TAB -->
+            <div *ngIf="activeTab === 'invoices'" class="bg-white rounded-2xl shadow-xl p-8 animate-slide-in">
+              <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                <span class="text-3xl">📄</span>
+                My Invoices
+              </h2>
+
+              <div *ngIf="loadingInvoices" class="space-y-4">
+                <div *ngFor="let i of [1,2,3]" class="animate-pulse border rounded-lg p-4">
+                  <div class="h-6 bg-gray-200 rounded w-1/2 mb-2"></div>
+                  <div class="h-4 bg-gray-200 rounded w-1/3"></div>
+                </div>
+              </div>
+
+              <div *ngIf="!loadingInvoices && invoices.length > 0">
+                <div class="overflow-x-auto">
+                  <table class="w-full">
+                    <thead>
+                      <tr class="border-b-2 border-gray-200">
+                        <th class="text-left py-4 px-4 font-bold text-gray-700">Invoice No</th>
+                        <th class="text-left py-4 px-4 font-bold text-gray-700">Date</th>
+                        <th class="text-left py-4 px-4 font-bold text-gray-700">Product</th>
+                        <th class="text-left py-4 px-4 font-bold text-gray-700">Amount</th>
+                        <th class="text-left py-4 px-4 font-bold text-gray-700">Status</th>
+                        <th class="text-left py-4 px-4 font-bold text-gray-700">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let invoice of invoices" class="border-b border-gray-100 hover:bg-gray-50 transition">
+                        <td class="py-4 px-4 font-mono text-sm font-semibold">{{ invoice.invoice_number }}</td>
+                        <td class="py-4 px-4 text-gray-700">{{ invoice.invoice_date | date:'shortDate' }}</td>
+                        <td class="py-4 px-4 text-gray-700">{{ invoice.subscription_details?.product_details?.name }}</td>
+                        <td class="py-4 px-4 font-bold text-blue-600">{{ invoice.total_amount | inrCurrency }}</td>
+                        <td class="py-4 px-4">
+                          <span [class.bg-green-100]="invoice.is_paid"
+                                [class.text-green-800]="invoice.is_paid"
+                                [class.bg-red-100]="!invoice.is_paid"
+                                [class.text-red-800]="!invoice.is_paid"
+                                class="px-3 py-1 rounded-full text-xs font-bold uppercase">
+                            {{ invoice.is_paid ? 'Paid' : 'Unpaid' }}
+                          </span>
+                        </td>
+                        <td class="py-4 px-4">
+                          <div class="flex gap-2">
+                            <button (click)="downloadInvoice(invoice.id, invoice.invoice_number)"
+                                    class="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 font-semibold text-sm">
+                              Download PDF
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div *ngIf="!loadingInvoices && invoices.length === 0" class="text-center py-16">
+                <div class="text-8xl mb-4">📄</div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">No Invoices Yet</h3>
+                <p class="text-gray-600">Your invoices will appear here after making rentals</p>
+              </div>
+            </div>
+
             <!-- PROFILE TAB -->
             <div *ngIf="activeTab === 'profile'" class="space-y-6 animate-slide-in">
               
-              <!-- Profile Picture Section -->
               <div class="bg-white rounded-2xl shadow-xl p-8">
                 <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
                   <span class="text-3xl">📸</span>
@@ -420,7 +485,6 @@ import { ToastService } from '../../core/services/toast.service';
                 </div>
               </div>
 
-              <!-- Profile Form -->
               <div class="bg-white rounded-2xl shadow-xl p-8">
                 <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
                   <span class="text-3xl">✏️</span>
@@ -501,7 +565,6 @@ import { ToastService } from '../../core/services/toast.service';
                   </button>
                 </div>
 
-                <!-- Address Form -->
                 <div *ngIf="showAddressForm" class="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200">
                   <h3 class="font-bold text-lg mb-4">Add New Address</h3>
                   <form [formGroup]="addressForm" (ngSubmit)="addAddress()">
@@ -554,7 +617,6 @@ import { ToastService } from '../../core/services/toast.service';
                   </form>
                 </div>
 
-                <!-- Addresses List -->
                 <div *ngIf="loadingAddresses" class="space-y-4">
                   <div *ngFor="let i of [1,2]" class="animate-pulse border-2 border-gray-200 rounded-xl p-6">
                     <div class="h-4 bg-gray-200 rounded w-3/4 mb-3"></div>
@@ -609,11 +671,13 @@ export class DashboardComponent implements OnInit {
   user: any = null;
   rentals: any[] = [];
   addresses: any[] = [];
+  invoices: any[] = [];
   loadingRentals = true;
   loadingAddresses = false;
+  loadingInvoices = false;
   updatingProfile = false;
   savingAddress = false;
-  activeTab = 'overview';
+  activeTab: 'overview' | 'rentals' | 'invoices' | 'profile' | 'addresses' = 'overview';
   rentalFilter: 'all' | 'active' | 'completed' = 'all';
   showAddressForm = false;
   
@@ -651,10 +715,11 @@ export class DashboardComponent implements OnInit {
     this.user = this.authService.currentUser;
     this.loadProfile();
     this.loadRentals();
+    this.loadInvoices();
     
     this.route.queryParams.subscribe(params => {
       if (params['tab']) {
-        this.activeTab = params['tab'];
+        this.activeTab = params['tab'] as any;
       }
     });
   }
@@ -701,6 +766,20 @@ export class DashboardComponent implements OnInit {
         console.error('Error loading addresses:', err);
         this.addresses = [];
         this.loadingAddresses = false;
+      }
+    });
+  }
+
+  loadInvoices() {
+    this.loadingInvoices = true;
+    this.http.get<any[]>(`${environment.apiUrl}/payments/invoices/`).subscribe({
+      next: (invoices) => {
+        this.invoices = invoices;
+        this.loadingInvoices = false;
+      },
+      error: (err) => {
+        console.error('Error loading invoices:', err);
+        this.loadingInvoices = false;
       }
     });
   }
@@ -753,7 +832,6 @@ export class DashboardComponent implements OnInit {
   }
 
   removeProfilePicture() {
-    // Implementation for removing profile picture
     this.toastService.info('Feature coming soon');
   }
 
@@ -789,6 +867,11 @@ export class DashboardComponent implements OnInit {
         }
       });
     }
+  }
+
+  downloadInvoice(invoiceId: string, invoiceNumber: string) {
+    window.open(`${environment.apiUrl}/payments/invoices/${invoiceId}/download/`, '_blank');
+    this.toastService.success('Downloading invoice...');
   }
 
   filterRentals(filter: 'all' | 'active' | 'completed') {

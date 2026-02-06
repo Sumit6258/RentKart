@@ -15,6 +15,15 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/register.component').then(m => m.RegisterComponent)
   },
   {
+    path: 'admin-login',
+    loadComponent: () => import('./features/admin/admin-login.component').then(m => m.AdminLoginComponent)
+  },
+  {
+    path: 'admin-dashboard',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/admin/admin-dashboard.component').then(m => m.AdminDashboardComponent)
+  },
+  {
     path: 'products',
     loadComponent: () => import('./features/products/product-list.component').then(m => m.ProductListComponent)
   },

@@ -16,54 +16,24 @@ import { GoogleMapsService } from '../../core/services/google-maps.service';
   imports: [CommonModule, RouterModule, ReactiveFormsModule, InrCurrencyPipe],
   styles: [`
     @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-
     @keyframes progressFill {
-      from {
-        width: 0%;
-      }
-      to {
-        width: var(--progress-width);
-      }
+      from { width: 0%; }
+      to { width: var(--progress-width); }
     }
-
-    .animate-slide-in {
-      animation: slideIn 0.3s ease-out;
-    }
-
-    .progress-bar-fill {
-      animation: progressFill 1s ease-out;
-    }
-
-    .stat-card {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .stat-card:hover {
-      transform: translateY(-4px);
-    }
-
-    .rental-card {
-      transition: all 0.2s ease;
-    }
-
-    .rental-card:hover {
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    }
+    .animate-slide-in { animation: slideIn 0.3s ease-out; }
+    .progress-bar-fill { animation: progressFill 1s ease-out; }
+    .stat-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .stat-card:hover { transform: translateY(-4px); }
+    .rental-card { transition: all 0.2s ease; }
+    .rental-card:hover { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
   `],
   template: `
     <div class="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
       <div class="container mx-auto px-4 py-8 max-w-7xl">
         
-        <!-- Page Header -->
         <div class="mb-8 animate-slide-in">
           <h1 class="text-4xl font-bold text-gray-900 mb-2">My Dashboard</h1>
           <p class="text-gray-600">Manage your rentals and profile</p>
@@ -75,7 +45,6 @@ import { GoogleMapsService } from '../../core/services/google-maps.service';
           <div class="lg:col-span-1">
             <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden sticky top-8">
               
-              <!-- Profile Section -->
               <div class="p-6 bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-center">
                 <div class="relative inline-block mb-4">
                   <div class="w-28 h-28 rounded-full bg-white shadow-lg flex items-center justify-center overflow-hidden border-4 border-white">
@@ -101,14 +70,13 @@ import { GoogleMapsService } from '../../core/services/google-maps.service';
                 </span>
               </div>
 
-              <!-- Navigation -->
               <nav class="p-4 space-y-1">
                 <button (click)="activeTab = 'overview'" 
                         [class.bg-blue-50]="activeTab === 'overview'"
                         [class.text-blue-600]="activeTab === 'overview'"
                         [class.border-l-4]="activeTab === 'overview'"
                         [class.border-blue-600]="activeTab === 'overview'"
-                        class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 transition-all font-medium flex items-center gap-3 group">
+                        class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 transition-all font-medium flex items-center gap-3">
                   <span class="text-xl">📊</span>
                   <span>Overview</span>
                 </button>
@@ -118,7 +86,7 @@ import { GoogleMapsService } from '../../core/services/google-maps.service';
                         [class.text-blue-600]="activeTab === 'rentals'"
                         [class.border-l-4]="activeTab === 'rentals'"
                         [class.border-blue-600]="activeTab === 'rentals'"
-                        class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 transition-all font-medium flex items-center gap-3 group">
+                        class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 transition-all font-medium flex items-center gap-3">
                   <span class="text-xl">🛍️</span>
                   <span>My Rentals</span>
                   <span *ngIf="getActiveRentalsCount() > 0" 
@@ -132,7 +100,7 @@ import { GoogleMapsService } from '../../core/services/google-maps.service';
                         [class.text-blue-600]="activeTab === 'invoices'"
                         [class.border-l-4]="activeTab === 'invoices'"
                         [class.border-blue-600]="activeTab === 'invoices'"
-                        class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 transition-all font-medium flex items-center gap-3 group">
+                        class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 transition-all font-medium flex items-center gap-3">
                   <span class="text-xl">📄</span>
                   <span>Invoices</span>
                 </button>
@@ -142,7 +110,7 @@ import { GoogleMapsService } from '../../core/services/google-maps.service';
                         [class.text-blue-600]="activeTab === 'profile'"
                         [class.border-l-4]="activeTab === 'profile'"
                         [class.border-blue-600]="activeTab === 'profile'"
-                        class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 transition-all font-medium flex items-center gap-3 group">
+                        class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 transition-all font-medium flex items-center gap-3">
                   <span class="text-xl">👤</span>
                   <span>Profile</span>
                 </button>
@@ -152,7 +120,7 @@ import { GoogleMapsService } from '../../core/services/google-maps.service';
                         [class.text-blue-600]="activeTab === 'addresses'"
                         [class.border-l-4]="activeTab === 'addresses'"
                         [class.border-blue-600]="activeTab === 'addresses'"
-                        class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 transition-all font-medium flex items-center gap-3 group">
+                        class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 transition-all font-medium flex items-center gap-3">
                   <span class="text-xl">🏠</span>
                   <span>Addresses</span>
                 </button>
@@ -165,14 +133,11 @@ import { GoogleMapsService } from '../../core/services/google-maps.service';
             
             <!-- OVERVIEW TAB -->
             <div *ngIf="activeTab === 'overview'" class="space-y-6 animate-slide-in">
-              
-              <!-- Welcome Card -->
               <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-xl p-8 text-white">
                 <h2 class="text-3xl font-bold mb-2">Welcome back, {{ user?.first_name || 'User' }}! 👋</h2>
                 <p class="text-blue-100">Here's what's happening with your rentals today</p>
               </div>
 
-              <!-- Stats Grid -->
               <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <button (click)="filterRentals('active')" 
                         class="stat-card bg-white rounded-2xl p-6 shadow-lg border-2 border-transparent hover:border-blue-300 cursor-pointer text-left">
@@ -211,7 +176,6 @@ import { GoogleMapsService } from '../../core/services/google-maps.service';
                 </button>
               </div>
 
-              <!-- Upcoming Return Alert -->
               <div *ngIf="getNextReturnDate()" 
                    class="bg-gradient-to-r from-amber-50 to-yellow-50 border-l-4 border-amber-500 rounded-xl p-6 shadow-lg">
                 <div class="flex items-start gap-4">
@@ -222,36 +186,6 @@ import { GoogleMapsService } from '../../core/services/google-maps.service';
                     <p class="font-bold text-lg text-amber-900 mb-1">Upcoming Return</p>
                     <p class="text-amber-800">Your next rental is due on <strong>{{ getNextReturnDate() }}</strong></p>
                   </div>
-                </div>
-              </div>
-
-              <!-- Quick Actions -->
-              <div class="bg-white rounded-2xl shadow-xl p-6">
-                <h3 class="font-bold text-xl mb-4 flex items-center gap-2">
-                  <span class="text-2xl">⚡</span>
-                  Quick Actions
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <a routerLink="/products" 
-                     class="flex items-center gap-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl hover:shadow-md transition border border-blue-100">
-                    <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
-                      <span class="text-2xl">🔍</span>
-                    </div>
-                    <div>
-                      <p class="font-bold text-gray-900">Browse Products</p>
-                      <p class="text-sm text-gray-600">Find your next rental</p>
-                    </div>
-                  </a>
-                  <button (click)="activeTab = 'profile'"
-                          class="flex items-center gap-4 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl hover:shadow-md transition border border-purple-100">
-                    <div class="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center">
-                      <span class="text-2xl">👤</span>
-                    </div>
-                    <div class="text-left">
-                      <p class="font-bold text-gray-900">Edit Profile</p>
-                      <p class="text-sm text-gray-600">Update your information</p>
-                    </div>
-                  </button>
                 </div>
               </div>
             </div>
@@ -270,7 +204,6 @@ import { GoogleMapsService } from '../../core/services/google-maps.service';
                 </button>
               </div>
 
-              <!-- Loading State -->
               <div *ngIf="loadingRentals" class="space-y-4">
                 <div *ngFor="let i of [1,2,3]" class="animate-pulse border-2 border-gray-100 rounded-2xl p-6">
                   <div class="flex gap-4">
@@ -283,7 +216,6 @@ import { GoogleMapsService } from '../../core/services/google-maps.service';
                 </div>
               </div>
 
-              <!-- Rentals List -->
               <div *ngIf="!loadingRentals && getFilteredRentals().length > 0" class="space-y-4">
                 <div *ngFor="let rental of getFilteredRentals()" 
                      class="rental-card border-2 border-gray-100 rounded-2xl p-6 hover:border-blue-200">
@@ -343,21 +275,6 @@ import { GoogleMapsService } from '../../core/services/google-maps.service';
                           <div class="relative h-3 bg-white rounded-full overflow-hidden shadow-inner border border-gray-200">
                             <div class="progress-bar-fill absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-1000 ease-out"
                                  [style.width.%]="getRentalProgress(rental)">
-                            </div>
-                          </div>
-
-                          <div class="flex justify-between items-center mt-3 text-xs">
-                            <div class="flex items-center gap-2 text-gray-600">
-                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                              </svg>
-                              <span class="font-semibold">{{ rental.start_date | date:'MMM d' }}</span>
-                            </div>
-                            <div class="flex items-center gap-2 text-gray-600">
-                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                              </svg>
-                              <span class="font-semibold">{{ rental.end_date | date:'MMM d' }}</span>
                             </div>
                           </div>
                         </div>
@@ -482,8 +399,10 @@ import { GoogleMapsService } from '../../core/services/google-maps.service';
                       </label>
                       <button *ngIf="user?.profile_picture" 
                               (click)="removeProfilePicture()"
-                              class="px-6 py-3 bg-red-100 text-red-700 font-semibold rounded-xl hover:bg-red-200 transition">
-                        Remove
+                              [disabled]="removingPicture"
+                              class="px-6 py-3 bg-red-100 text-red-700 font-semibold rounded-xl hover:bg-red-200 transition disabled:opacity-50">
+                        <span *ngIf="!removingPicture">🗑️ Remove</span>
+                        <span *ngIf="removingPicture">Removing...</span>
                       </button>
                     </div>
                   </div>
@@ -556,7 +475,7 @@ import { GoogleMapsService } from '../../core/services/google-maps.service';
               </div>
             </div>
 
-            <!-- ADDRESSES TAB -->
+            <!-- ADDRESSES TAB WITH GOOGLE MAPS -->
             <div *ngIf="activeTab === 'addresses'" class="space-y-6 animate-slide-in">
               <div class="bg-white rounded-2xl shadow-xl p-8">
                 <div class="flex justify-between items-center mb-6">
@@ -576,7 +495,7 @@ import { GoogleMapsService } from '../../core/services/google-maps.service';
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div class="md:col-span-2">
                         <label class="block text-sm font-bold text-gray-700 mb-2">
-                          Search Address 🔍
+                          🔍 Search Address with Google Maps
                         </label>
                         <input #addressInput type="text" placeholder="Start typing your address..."
                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
@@ -714,6 +633,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   loadingInvoices = false;
   updatingProfile = false;
   savingAddress = false;
+  removingPicture = false;
   activeTab: 'overview' | 'rentals' | 'invoices' | 'profile' | 'addresses' = 'overview';
   rentalFilter: 'all' | 'active' | 'completed' = 'all';
   showAddressForm = false;
@@ -742,11 +662,11 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     });
 
     this.addressForm = this.fb.group({
-      address_line1: [''],
+      address_line1: ['', Validators.required],
       address_line2: [''],
-      city: [''],
-      state: [''],
-      pincode: [''],
+      city: ['', Validators.required],
+      state: ['', Validators.required],
+      pincode: ['', Validators.required],
       latitude: [null],
       longitude: [null],
       is_default: [false]
@@ -763,14 +683,17 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         this.activeTab = params['tab'] as any;
         if (this.activeTab === 'invoices') {
           this.loadInvoices();
+        } else if (this.activeTab === 'addresses') {
+          this.loadAddresses();
         }
       }
     });
   }
 
   ngAfterViewInit() {
+    // Initialize Google Maps if on addresses tab
     if (this.activeTab === 'addresses' && this.showAddressForm) {
-      this.initAddressAutocomplete();
+      setTimeout(() => this.initAddressAutocomplete(), 100);
     }
   }
 
@@ -882,7 +805,22 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   removeProfilePicture() {
-    this.toastService.info('Feature coming soon');
+    if (confirm('Are you sure you want to remove your profile picture?')) {
+      this.removingPicture = true;
+      
+      this.http.delete(`${environment.apiUrl}/auth/profile/picture/remove/`).subscribe({
+        next: (response: any) => {
+          this.toastService.success('✅ Profile picture removed!');
+          this.user = response.user;
+          this.authService.updateCurrentUser(response.user);
+          this.removingPicture = false;
+        },
+        error: (err) => {
+          this.toastService.error('Failed to remove picture');
+          this.removingPicture = false;
+        }
+      });
+    }
   }
 
   onShowAddressForm() {
@@ -942,7 +880,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       longitude: lng
     });
     
-    this.showMapWithLocation(lat, lng);
+    setTimeout(() => {
+      this.showMapWithLocation(lat, lng);
+    }, 100);
   }
 
   showMapWithLocation(lat: number, lng: number) {

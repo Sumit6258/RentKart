@@ -73,13 +73,27 @@ def login_view(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def admin_login_view(request):
-    """Admin login - separate endpoint"""
+    """Admin login - accepts superuser or admin role"""
     email = request.data.get('email')
     password = request.data.get('password')
     
     try:
-        user = User.objects.get(email=email, role='admin')
+        # Try to get user with admin role OR superuser status
+        user = User.objects.get(email=email)
+        
+        # Check if user is superuser or has admin role
+        if not (user.is_superuser or user.role == 'admin'):
+            return Response({
+                'error': 'Access denied. Admin privileges required.'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+        # Verify password
         if user.check_password(password):
+            # Update role to admin if superuser
+            if user.is_superuser and user.role != 'admin':
+                user.role = 'admin'
+                user.save()
+            
             refresh = RefreshToken.for_user(user)
             
             return Response({
@@ -91,9 +105,14 @@ def admin_login_view(request):
                 'message': 'Admin login successful!'
             })
         else:
-            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({
+                'error': 'Invalid credentials'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+            
     except User.DoesNotExist:
-        return Response({'error': 'Invalid admin credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({
+            'error': 'Invalid credentials'
+        }, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @api_view(['POST'])
@@ -146,7 +165,7 @@ def upload_profile_picture(request):
 @permission_classes([IsAuthenticated])
 def admin_stats(request):
     """Admin dashboard statistics"""
-    if request.user.role != 'admin':
+    if not (request.user.is_superuser or request.user.role == 'admin'):
         return Response({'error': 'Access denied'}, status=status.HTTP_403_FORBIDDEN)
     
     from subscriptions.models import Subscription
@@ -183,7 +202,7 @@ def admin_stats(request):
 @permission_classes([IsAuthenticated])
 def admin_users_list(request):
     """List all users for admin"""
-    if request.user.role != 'admin':
+    if not (request.user.is_superuser or request.user.role == 'admin'):
         return Response({'error': 'Access denied'}, status=status.HTTP_403_FORBIDDEN)
     
     role_filter = request.GET.get('role', None)
@@ -201,7 +220,7 @@ def admin_users_list(request):
 @permission_classes([IsAuthenticated])
 def admin_toggle_user(request, user_id):
     """Block/unblock user"""
-    if request.user.role != 'admin':
+    if not (request.user.is_superuser or request.user.role == 'admin'):
         return Response({'error': 'Access denied'}, status=status.HTTP_403_FORBIDDEN)
     
     try:
@@ -221,7 +240,7 @@ def admin_toggle_user(request, user_id):
 @permission_classes([IsAuthenticated])
 def admin_all_products(request):
     """List all products for admin"""
-    if request.user.role != 'admin':
+    if not (request.user.is_superuser or request.user.role == 'admin'):
         return Response({'error': 'Access denied'}, status=status.HTTP_403_FORBIDDEN)
     
     from products.models import Product
@@ -236,7 +255,7 @@ def admin_all_products(request):
 @permission_classes([IsAuthenticated])
 def admin_all_rentals(request):
     """List all rentals for admin"""
-    if request.user.role != 'admin':
+    if not (request.user.is_superuser or request.user.role == 'admin'):
         return Response({'error': 'Access denied'}, status=status.HTTP_403_FORBIDDEN)
     
     from subscriptions.models import Subscription
@@ -251,7 +270,7 @@ def admin_all_rentals(request):
 @permission_classes([IsAuthenticated])
 def admin_all_payments(request):
     """List all payments for admin"""
-    if request.user.role != 'admin':
+    if not (request.user.is_superuser or request.user.role == 'admin'):
         return Response({'error': 'Access denied'}, status=status.HTTP_403_FORBIDDEN)
     
     from payments.models import Payment

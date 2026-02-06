@@ -15,7 +15,7 @@ class Customer(models.Model):
 
 
 class Address(models.Model):
-    """Customer addresses"""
+    """Customer addresses with Google Maps integration"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='addresses')
     
@@ -24,6 +24,10 @@ class Address(models.Model):
     city = models.CharField(max_length=100)
     state = models.CharField(max_length=100)
     pincode = models.CharField(max_length=10)
+    
+    # Google Maps Integration
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     
     is_default = models.BooleanField(default=False)
     
@@ -38,7 +42,6 @@ class Address(models.Model):
         return f"{self.address_line1}, {self.city}"
     
     def save(self, *args, **kwargs):
-        # If this is set as default, remove default from others
         if self.is_default:
             Address.objects.filter(customer=self.customer, is_default=True).update(is_default=False)
         super().save(*args, **kwargs)

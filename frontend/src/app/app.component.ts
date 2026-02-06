@@ -125,9 +125,9 @@ import { ToastService } from './core/services/toast.service';
           <div>
             <h4 class="font-semibold mb-4">Contact</h4>
             <ul class="space-y-2 text-gray-400">
-              <li>📧 support&#64;rentkart.com</li>
-              <li>📞 +91 98765 43210</li>
-              <li>📍 Mumbai, India</li>
+              <li>📧 support&#64;rentkart.in</li>
+              <li>📞 +91 98765 43200</li>
+              <li>📍 Pune, India</li>
             </ul>
           </div>
         </div>

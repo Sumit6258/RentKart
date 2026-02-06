@@ -4,6 +4,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
 from .serializers import (
     UserSerializer, UserRegistrationSerializer, 
     LoginSerializer, ProfilePictureUploadSerializer
@@ -21,11 +22,9 @@ def register_view(request):
     if serializer.is_valid():
         user = serializer.save()
         
-        # Auto-create Customer profile if role is customer
         if user.role == 'customer':
             Customer.objects.get_or_create(user=user)
         
-        # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
         
         return Response({
@@ -72,6 +71,32 @@ def login_view(request):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
+def admin_login_view(request):
+    """Admin login - separate endpoint"""
+    email = request.data.get('email')
+    password = request.data.get('password')
+    
+    try:
+        user = User.objects.get(email=email, role='admin')
+        if user.check_password(password):
+            refresh = RefreshToken.for_user(user)
+            
+            return Response({
+                'user': UserSerializer(user).data,
+                'tokens': {
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                },
+                'message': 'Admin login successful!'
+            })
+        else:
+            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+    except User.DoesNotExist:
+        return Response({'error': 'Invalid admin credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
     """Logout user"""
@@ -114,3 +139,124 @@ def upload_profile_picture(request):
         })
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# ADMIN APIS
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def admin_stats(request):
+    """Admin dashboard statistics"""
+    if request.user.role != 'admin':
+        return Response({'error': 'Access denied'}, status=status.HTTP_403_FORBIDDEN)
+    
+    from subscriptions.models import Subscription
+    from payments.models import Payment
+    from products.models import Product
+    
+    total_users = User.objects.count()
+    total_customers = User.objects.filter(role='customer').count()
+    total_vendors = User.objects.filter(role='vendor').count()
+    total_products = Product.objects.count()
+    active_rentals = Subscription.objects.filter(status='active').count()
+    
+    # Calculate monthly revenue
+    from django.utils import timezone
+    from datetime import timedelta
+    thirty_days_ago = timezone.now() - timedelta(days=30)
+    monthly_payments = Payment.objects.filter(
+        status='success',
+        payment_date__gte=thirty_days_ago
+    )
+    monthly_revenue = sum(float(p.amount) for p in monthly_payments)
+    
+    return Response({
+        'total_users': total_users,
+        'total_customers': total_customers,
+        'total_vendors': total_vendors,
+        'total_products': total_products,
+        'active_rentals': active_rentals,
+        'monthly_revenue': monthly_revenue
+    })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def admin_users_list(request):
+    """List all users for admin"""
+    if request.user.role != 'admin':
+        return Response({'error': 'Access denied'}, status=status.HTTP_403_FORBIDDEN)
+    
+    role_filter = request.GET.get('role', None)
+    
+    if role_filter:
+        users = User.objects.filter(role=role_filter)
+    else:
+        users = User.objects.all()
+    
+    serializer = UserSerializer(users, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def admin_toggle_user(request, user_id):
+    """Block/unblock user"""
+    if request.user.role != 'admin':
+        return Response({'error': 'Access denied'}, status=status.HTTP_403_FORBIDDEN)
+    
+    try:
+        user = User.objects.get(id=user_id)
+        user.is_active = not user.is_active
+        user.save()
+        
+        return Response({
+            'message': f'User {"activated" if user.is_active else "deactivated"}',
+            'user': UserSerializer(user).data
+        })
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def admin_all_products(request):
+    """List all products for admin"""
+    if request.user.role != 'admin':
+        return Response({'error': 'Access denied'}, status=status.HTTP_403_FORBIDDEN)
+    
+    from products.models import Product
+    from products.serializers import ProductDetailSerializer
+    
+    products = Product.objects.all()
+    serializer = ProductDetailSerializer(products, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def admin_all_rentals(request):
+    """List all rentals for admin"""
+    if request.user.role != 'admin':
+        return Response({'error': 'Access denied'}, status=status.HTTP_403_FORBIDDEN)
+    
+    from subscriptions.models import Subscription
+    from subscriptions.serializers import SubscriptionSerializer
+    
+    subscriptions = Subscription.objects.all()
+    serializer = SubscriptionSerializer(subscriptions, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def admin_all_payments(request):
+    """List all payments for admin"""
+    if request.user.role != 'admin':
+        return Response({'error': 'Access denied'}, status=status.HTTP_403_FORBIDDEN)
+    
+    from payments.models import Payment
+    from payments.serializers import PaymentSerializer
+    
+    payments = Payment.objects.all()
+    serializer = PaymentSerializer(payments, many=True)
+    return Response(serializer.data)

@@ -1,7 +1,7 @@
 # 🏠 Rentkart - Smart Rental Marketplace
 
 <div align="center">
-  <img src="assets/rentkart-logo.png" alt="Rentkart Logo" width="200"/>
+  <img src="frontend/src/assets/logo/rentkart-logo.jpg" alt="Rentkart Logo" width="200"/>
   
   ### *Rent Smart. Live Better.*
   

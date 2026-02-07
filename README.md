@@ -652,7 +652,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Portfolio: [sumitsuman.dev](#)
 - LinkedIn: [linkedin.com/in/thesumitsuman](#)
 - GitHub: [@sumit6258](#)
-- Email: sumitsuman6258@google.com
+- Email: sumitsuman6258@gmail.com
 
 ---
 

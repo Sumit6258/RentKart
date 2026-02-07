@@ -300,3 +300,25 @@ def remove_profile_picture(request):
     return Response({
         'error': 'No profile picture to remove'
     }, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def public_stats(request):
+    """Public stats for homepage - no authentication required"""
+    from products.models import Product
+    from subscriptions.models import Subscription
+    
+    total_users = User.objects.filter(is_active=True).count()
+    total_customers = User.objects.filter(role='customer', is_active=True).count()
+    total_vendors = User.objects.filter(role='vendor', is_active=True).count()
+    total_products = Product.objects.filter(is_active=True).count()
+    active_rentals = Subscription.objects.filter(status='active').count()
+    
+    return Response({
+        'total_users': total_users,
+        'total_customers': total_customers,
+        'total_vendors': total_vendors,
+        'total_products': total_products,
+        'active_rentals': active_rentals
+    })

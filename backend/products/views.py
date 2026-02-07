@@ -244,3 +244,43 @@ def admin_rental_action(request, rental_id):
         serializer.save()
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser])
+def vendor_create_product(request):
+    """Vendor: Create new product"""
+    if request.user.role != 'vendor':
+        return Response({'error': 'Access denied'}, status=status.HTTP_403_FORBIDDEN)
+    
+    serializer = ProductDetailSerializer(data=request.data)
+    if serializer.is_valid():
+        # Automatically set vendor to current user
+        serializer.save(vendor=request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['PATCH', 'DELETE'])
+@permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser])
+def vendor_update_product(request, product_id):
+    """Vendor: Update or delete their own product"""
+    if request.user.role != 'vendor':
+        return Response({'error': 'Access denied'}, status=status.HTTP_403_FORBIDDEN)
+    
+    try:
+        product = Product.objects.get(id=product_id, vendor=request.user)
+    except Product.DoesNotExist:
+        return Response({'error': 'Product not found or access denied'}, status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == 'PATCH':
+        serializer = ProductDetailSerializer(product, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    elif request.method == 'DELETE':
+        product.delete()
+        return Response({'message': 'Product deleted successfully'}, status=status.HTTP_204_NO_CONTENT)

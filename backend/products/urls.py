@@ -12,6 +12,8 @@ urlpatterns = [
     # Vendor routes
     path('vendor/stats/', views.vendor_dashboard_stats, name='vendor-stats'),
     path('vendor/products/', views.vendor_products, name='vendor-products'),
+    path('vendor/products/create/', views.vendor_create_product, name='vendor-create-product'),
+    path('vendor/products/<uuid:product_id>/', views.vendor_update_product, name='vendor-update-product'),
     path('vendor/rentals/', views.vendor_rentals, name='vendor-rentals'),
     
     # Admin CRUD routes

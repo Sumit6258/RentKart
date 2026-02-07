@@ -650,9 +650,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Sumit Suman**
 
 - Portfolio: [sumitsuman.dev](#)
-- LinkedIn: [linkedin.com/in/sumitsuman](#)
-- GitHub: [@sumitsuman](#)
-- Email: sumitsuman@example.com
+- LinkedIn: [linkedin.com/in/thesumitsuman](#)
+- GitHub: [@sumit6258](#)
+- Email: sumitsuman6258@google.com
 
 ---
 
@@ -668,7 +668,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For support, email support@rentkart.com or join our Slack channel.
+For support, email support@rentkart.in or join our Slack channel.
 
 ---
 
@@ -678,6 +678,6 @@ For support, email support@rentkart.com or join our Slack channel.
   
   ⭐ Star this repository if you found it helpful!
   
-  [Report Bug](https://github.com/yourusername/rentkart/issues) • [Request Feature](https://github.com/yourusername/rentkart/issues)
+  [Report Bug](https://github.com/sumit6258/rentkart/issues) • [Request Feature](https://github.com/sumit6258/rentkart/issues)
   
 </div>

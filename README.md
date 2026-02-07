@@ -674,7 +674,7 @@ For support, email support@rentkart.in or join our Slack channel.
 
 <div align="center">
   
-  **Made with ❤️ in India**
+  **Made with ❤️ in India   **
   
   ⭐ Star this repository if you found it helpful!
   

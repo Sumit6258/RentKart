@@ -61,12 +61,12 @@ import { RouterModule } from '@angular/router';
             <h2 class="text-4xl font-bold text-gray-900 mb-8 text-center">Our Story</h2>
             <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed space-y-6">
               <p>
-                Rentkart was founded in 2024 with a simple vision: to make quality products accessible to everyone, 
+                Rentkart was founded in 2025 with a simple vision: to make quality products accessible to everyone, 
                 regardless of their budget. We recognized that many people need items temporarily - whether it's a 
                 camera for a weekend trip, furniture for a short-term rental, or equipment for a one-time project.
               </p>
               <p>
-                Starting in Mumbai, we've grown to serve customers across India, connecting them with verified vendors 
+                Starting in Hinjewadi Phase 3, Pune, we've grown to serve customers across India, connecting them with verified vendors 
                 who offer everything from electronics to vehicles. Our platform ensures secure transactions, quality 
                 products, and excellent customer service.
               </p>

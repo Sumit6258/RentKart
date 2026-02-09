@@ -577,10 +577,18 @@ export class RentProductComponent implements OnInit {
   }
 
   viewInvoice() {
-    if (this.invoiceData) {
-      this.router.navigate(['/dashboard/invoices', this.invoiceData.id]);
-    }
+  if (this.invoiceData?.id) {
+    // Close modal if any
+    this.paymentSuccess = false;
+    
+    // Navigate to dashboard invoices tab
+    this.router.navigate(['/dashboard'], { 
+      queryParams: { tab: 'invoices' } 
+    }).then(() => {
+      this.toastService.success('Opening invoices...');
+    });
   }
+}
 
   goToDashboard() {
     this.router.navigate(['/dashboard'], { queryParams: { tab: 'rentals' } });

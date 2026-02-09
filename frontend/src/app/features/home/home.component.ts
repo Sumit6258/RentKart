@@ -376,30 +376,33 @@ import { InrCurrencyPipe } from '../../shared/pipes/currency.pipe';
       </section>
 
       <!-- Categories -->
-      <section class="py-20">
-        <div class="container mx-auto px-4">
-          <div class="text-center mb-12 animate-fadeInUp">
-            <h2 class="text-4xl md:text-5xl font-black text-gray-900 mb-4">
-              Popular Categories
-            </h2>
-            <p class="text-xl text-gray-600">
-              Explore rentals by category
-            </p>
-          </div>
+      <!-- Categories Section -->
+<section class="py-20">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-12 animate-fadeInUp">
+      <h2 class="text-4xl md:text-5xl font-black text-gray-900 mb-4">
+        Popular Categories
+      </h2>
+      <p class="text-xl text-gray-600">
+        Explore rentals by category
+      </p>
+    </div>
 
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div *ngFor="let category of categories; let i = index" 
-                 class="card-hover bg-white rounded-2xl p-8 text-center border-2 border-gray-100 hover:border-blue-300 cursor-pointer shadow-lg animate-fadeInUp"
-                 [class.delay-100]="i === 1"
-                 [class.delay-200]="i === 2"
-                 [class.delay-300]="i === 3">
-              <div class="text-5xl mb-4">{{ getCategoryIcon(category.name) }}</div>
-              <h3 class="font-bold text-lg text-gray-900">{{ category.name }}</h3>
-              <p class="text-sm text-gray-500 mt-2">{{ category.description }}</p>
-            </div>
-          </div>
-        </div>
-      </section>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <a *ngFor="let category of categories; let i = index"
+         [routerLink]="['/products']"
+         [queryParams]="{category: category.slug || category.name.toLowerCase()}"
+         class="card-hover bg-white rounded-2xl p-8 text-center border-2 border-gray-100 hover:border-blue-300 cursor-pointer shadow-lg animate-fadeInUp"
+         [class.delay-100]="i === 1"
+         [class.delay-200]="i === 2"
+         [class.delay-300]="i === 3">
+        <div class="text-5xl mb-4">{{ getCategoryIcon(category.name) }}</div>
+        <h3 class="font-bold text-lg text-gray-900">{{ category.name }}</h3>
+        <p class="text-sm text-gray-500 mt-2">{{ category.description }}</p>
+      </a>
+    </div>
+  </div>
+</section>
 
       <!-- CTA Section -->
       <section class="py-20 bg-gradient-to-r from-purple-600 to-pink-600 text-white">

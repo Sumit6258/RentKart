@@ -160,8 +160,8 @@ import { ToastService } from './core/services/toast.service';
 
           <div>
             <h3 class="font-bold text-lg mb-4">Connect</h3>
-            <p class="text-gray-400 mb-2">📧 support&#64;rentkart.com</p>
-            <p class="text-gray-400">📱 +91 98765 43210</p>
+            <p class="text-gray-400 mb-2">📧 support&#64;rentkart.in</p>
+            <p class="text-gray-400">📱 +91 92641 76210</p>
           </div>
         </div>
 

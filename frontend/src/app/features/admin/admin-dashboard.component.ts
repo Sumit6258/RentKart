@@ -263,6 +263,7 @@ import { InrCurrencyPipe } from '../../shared/pipes/currency.pipe';
                   <p class="text-gray-400 text-sm">{{ category.slug }}</p>
                 </div>
                 <div class="flex gap-2">
+                
                   <button (click)="editCategory(category)"
                           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-semibold">
                     ✏️ Edit
@@ -389,40 +390,63 @@ import { InrCurrencyPipe } from '../../shared/pipes/currency.pipe';
             </div>
 
             <!-- Products List -->
-            <div class="space-y-3">
-              <div *ngFor="let product of products" 
-                   class="bg-gray-700 rounded-lg p-4 flex items-center gap-4">
-                <img [src]="getProductImage(product.main_image)" 
-                     [alt]="product.name"
-                     class="w-16 h-16 object-cover rounded-lg">
-                
-                <div class="flex-1">
-                  <h3 class="font-bold text-white">{{ product.name }}</h3>
-                  <div class="flex gap-4 text-sm text-gray-400">
-                    <span>{{ product.category_name }}</span>
-                    <span>{{ product.daily_price | inrCurrency }}/day</span>
-                    <span>{{ product.city }}</span>
-                  </div>
-                </div>
-
-                <div class="flex items-center gap-2">
-                  <span class="px-3 py-1 rounded-full text-xs font-bold"
-                        [class.bg-green-600]="product.is_available"
-                        [class.bg-gray-600]="!product.is_available"
-                        class="text-white">
-                    {{ product.is_available ? 'Available' : 'Unavailable' }}
-                  </span>
-                  <button (click)="editProduct(product)"
-                          class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs font-semibold">
-                    Edit
-                  </button>
-                  <button (click)="deleteProduct(product.id)"
-                          class="px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 text-xs font-semibold">
-                    Delete
-                  </button>
-                </div>
-              </div>
+            <!-- Product List Display -->
+<div *ngIf="!loadingProducts && products.length > 0" class="space-y-4">
+  <div *ngFor="let product of products" 
+       class="bg-white border-2 border-gray-100 rounded-2xl p-6 hover:border-blue-300 hover:shadow-lg transition">
+    <div class="flex gap-6">
+      <img [src]="getProductImage(product.main_image)" 
+           [alt]="product.name"
+           class="w-24 h-24 object-cover rounded-xl shadow-md">
+      
+      <div class="flex-1">
+        <div class="flex items-start justify-between mb-3">
+          <div>
+            <h3 class="font-bold text-xl text-gray-900 mb-2">{{ product.name }}</h3>
+            <div class="flex items-center gap-4 text-sm text-gray-600">
+              <span class="flex items-center gap-1">
+                <span class="text-lg">📦</span>
+                {{ product.category_name }}
+              </span>
+              <span class="flex items-center gap-1">
+                <span class="text-lg">💰</span>
+                {{ product.daily_price | inrCurrency }}/day
+              </span>
+              <span class="flex items-center gap-1">
+                <span class="text-lg">📍</span>
+                {{ product.city }}
+              </span>
             </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <!-- Availability Toggle Button -->
+            <button (click)="toggleProductAvailability(product)"
+                    class="px-4 py-2 rounded-lg font-semibold text-sm transition"
+                    [class.bg-green-100]="product.is_available"
+                    [class.text-green-700]="product.is_available"
+                    [class.hover:bg-green-200]="product.is_available"
+                    [class.bg-red-100]="!product.is_available"
+                    [class.text-red-700]="!product.is_available"
+                    [class.hover:bg-red-200]="!product.is_available">
+              {{ product.is_available ? '✓ Active' : '✗ Inactive' }}
+            </button>
+            
+            <button (click)="editProduct(product)"
+                    class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 font-semibold text-sm transition">
+              ✏️ Edit
+            </button>
+            <button (click)="deleteProduct(product.id)"
+                    class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 font-semibold text-sm transition">
+              🗑️ Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
             <div *ngIf="products.length === 0 && !showProductForm" class="text-center py-12">
               <div class="text-6xl mb-4">📦</div>
@@ -523,6 +547,7 @@ export class AdminDashboardComponent implements OnInit {
   activeTab = 'users';
   userFilter = 'all';
   
+  
   stats = {
     total_users: 0,
     total_customers: 0,
@@ -547,6 +572,7 @@ export class AdminDashboardComponent implements OnInit {
   productForm: FormGroup;
   productImageFile: File | null = null;
   savingProduct = false;
+  loadingProducts = false;
 
   constructor(
     private fb: FormBuilder,
@@ -623,9 +649,16 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   loadProducts() {
+    this.loadingProducts = true;
     this.http.get<any[]>(`${environment.apiUrl}/auth/admin/products/`).subscribe({
-      next: (products) => this.products = products,
-      error: (err) => console.error('Error:', err)
+      next: (products) => {
+        this.products = products;
+        this.loadingProducts = false;
+      },
+      error: (err) => {
+        console.error('Error:', err);
+        this.loadingProducts = false;
+      }
     });
   }
 
@@ -797,6 +830,27 @@ export class AdminDashboardComponent implements OnInit {
         error: () => this.toastService.error('Failed to delete')
       });
     }
+  }
+
+  toggleProductAvailability(product: any) {
+    const newStatus = !product.is_available;
+    
+    this.http.patch(`${environment.apiUrl}/products/admin/products/${product.id}/`, {
+      is_available: newStatus
+    }).subscribe({
+      next: () => {
+        product.is_available = newStatus;
+        this.toastService.success(
+          newStatus ? '✅ Product activated' : '⏸️ Product deactivated'
+        );
+        this.loadProducts();
+        this.loadStats();
+      },
+      error: (err) => {
+        console.error('Error:', err);
+        this.toastService.error('Failed to update product status');
+      }
+    });
   }
 
   updateRentalStatus(rental: any, event: any) {

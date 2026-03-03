@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.rentkart.com/api/v1'
+  apiUrl: 'https://rentkart-api.onrender.com/api/v1'
 };

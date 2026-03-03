@@ -1,6 +1,7 @@
 [build]
+  base = "frontend"
   command = "npm run build -- --configuration production"
-  publish = "dist/rentkart/browser"
+  publish = "frontend/dist/rentkart-frontend"
 
 [[redirects]]
   from = "/*"

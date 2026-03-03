@@ -35,8 +35,8 @@ celerybeat.pid
 ################################
 frontend/node_modules/
 frontend/dist/
-frontend/src/environments/environment.ts
-frontend/src/environments/environment.prod.ts
+#frontend/src/environments/environment.ts
+#frontend/src/environments/environment.prod.ts
 frontend/.angular/
 frontend/.cache/
 npm-debug.log*

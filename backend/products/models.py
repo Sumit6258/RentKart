@@ -3,6 +3,7 @@ from users.models import User
 from django.utils.text import slugify
 import uuid
 from decimal import Decimal, ROUND_HALF_UP
+from cloudinary.models import CloudinaryField
 
 class Category(models.Model):
     """Product categories"""
@@ -11,7 +12,7 @@ class Category(models.Model):
     name = models.CharField(max_length=200, unique=True)
     slug = models.SlugField(max_length=200, unique=True, blank=True)
     description = models.TextField(blank=True)
-    image = models.ImageField(upload_to='categories/', null=True, blank=True)
+    image = CloudinaryField('image', null=True, blank=True)
     
     # Hierarchy support (for subcategories)
     parent = models.ForeignKey(
@@ -75,7 +76,7 @@ class Product(models.Model):
     available_quantity = models.IntegerField(default=1)
 
     # Images
-    main_image = models.ImageField(upload_to='products/', null=True, blank=True)
+    main_image = CloudinaryField('image', null=True, blank=True)
 
     # Location
     city = models.CharField(max_length=100, blank=True)
